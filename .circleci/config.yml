@@ -45,7 +45,7 @@ jobs:
       # ビルドしたファイルをダウンロードできるようにする。
       # ビルド後にArtifactsというタブができるのでそこからダウンロードできる。
       - store_artifacts:
-          path: ~/repo/artifacts
+          path: ~/dev/js/react03/memo/artifacts
           destination: artifact-file
 
       # herokuへの接続設定
