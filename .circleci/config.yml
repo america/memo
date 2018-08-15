@@ -50,9 +50,9 @@ jobs:
 
       # herokuへの接続設定
       # CircleCI上で'HEROKU_APP_NAME'という名前でherokuのApp名を設定しておく。
+          environment:
+            HEROKU_APP_NAME: react03
       - run: bash .circleci/setup-heroku.sh
-      environment:
-        HEROKU_APP_NAME: react03
 
      # masterブランチの場合だけherokuへpush
       - deploy:
