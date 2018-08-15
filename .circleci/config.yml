@@ -1,0 +1,64 @@
+# Javascript Node CircleCI 2.0 configuration file
+#
+# Check https://circleci.com/docs/2.0/language-javascript/ for more details
+#
+version: 2
+jobs:
+  build:
+    docker:
+      # specify the version you desire here
+      - image: circleci/node:8.2.1
+      
+      # Specify service dependencies here if necessary
+      # CircleCI maintains a library of pre-built images
+      # documented at https://circleci.com/docs/2.0/circleci-images/
+      # - image: circleci/mongo:3.4.4
+
+    working_directory: ~/dev/js/react03/memo
+
+    steps:
+      - checkout
+
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+          - v1-dependencies-{{ checksum "package.json" }}
+          # fallback to using the latest cache if no exact match is found
+          - v1-dependencies-
+
+      - run: yarn install
+
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1-dependencies-{{ checksum "package.json" }}
+        
+      # run tests!
+      - run: yarn test
+
+      # build
+      - run: yarn build
+
+      # 自作のスクリプトでダウンロード用にbuildディレクトリをtar.gzファイルにしている。
+      - run : bash .circleci/create-artifacts.sh
+
+      # ビルドしたファイルをダウンロードできるようにする。
+      # ビルド後にArtifactsというタブができるのでそこからダウンロードできる。
+      - store_artifacts:
+          path: ~/repo/artifacts
+          destination: artifact-file
+
+      # herokuへの接続設定
+      # CircleCI上で'HEROKU_APP_NAME'という名前でherokuのApp名を設定しておく。
+      environment:
+        HEROKU_APP_NAME:
+	  react03
+      - run: bash .circleci/setup-heroku.sh
+
+     # masterブランチの場合だけherokuへpush
+      - deploy:
+          name: Deploy Master to Heroku
+          command: |
+            if [ "${CIRCLE_BRANCH}" == "master" ]; then
+              git push heroku master
+            fi
